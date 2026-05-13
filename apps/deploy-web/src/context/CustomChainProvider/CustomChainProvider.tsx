@@ -15,10 +15,25 @@ import { useSnackbar } from "notistack";
 
 import { assetLists, chains } from "@src/chains";
 import { WalletModal } from "@src/components/wallet-modal/WalletModal";
+import { browserEnvConfig } from "@src/config/browser-env.config";
 import networkStore from "@src/store/networkStore";
 import walletStore from "@src/store/walletStore";
 import { registry } from "@src/utils/customRegistry";
-import { COSMOS_KIT_CURRENT_WALLET_KEY } from "./cosmosKitStorage";
+import { COSMOS_KIT_CURRENT_WALLET_KEY, pruneStalePersistedWallet } from "./cosmosKitStorage";
+
+const walletConnectProjectId = browserEnvConfig.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
+const wallets = [...keplr, ...cosmostation, ...metamask];
+
+pruneStalePersistedWallet(wallets, walletConnectProjectId);
+
+if (!walletConnectProjectId && process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+  // eslint-disable-next-line no-console
+  console.warn(
+    "[Console Air] NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not set. " +
+      "Mobile wallet (WalletConnect) support is disabled — browser extensions still work. " +
+      "See docs/self-hosting.md to enable mobile wallets."
+  );
+}
 
 type Props = {
   children: React.ReactNode;
@@ -29,9 +44,10 @@ export function CustomChainProvider({ children }: Props) {
     <ChainProvider
       chains={chains}
       assetLists={assetLists}
-      wallets={[...keplr, ...cosmostation, ...metamask]}
+      wallets={wallets}
       walletModal={ModalWrapper}
       throwErrors={false}
+      logLevel="WARN"
       sessionOptions={{
         duration: 31_556_926_000, // 1 year
         callback: () => {
@@ -40,11 +56,15 @@ export function CustomChainProvider({ children }: Props) {
           window.location.reload();
         }
       }}
-      walletConnectOptions={{
-        signClient: {
-          projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID as string
-        }
-      }}
+      {...(walletConnectProjectId
+        ? {
+            walletConnectOptions: {
+              signClient: {
+                projectId: walletConnectProjectId
+              }
+            }
+          }
+        : {})}
       endpointOptions={{
         isLazy: true,
         endpoints: {
