@@ -12,6 +12,7 @@ updates:
       include: "scope"
     groups:
       actions-minor-patch:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
 
   # npm monorepo: root + every app + every workspace package (dependabot v2 glob).
@@ -28,6 +29,7 @@ updates:
       include: "scope"
     groups:
       npm-minor-patch:
+        patterns: ["*"]
         update-types: ["minor", "patch"]
 
   # Container base image (deploy-web).
