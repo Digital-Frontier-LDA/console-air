@@ -1,0 +1,41 @@
+version: 2
+# Watch dependencies for security + version updates. Dependabot only opens PRs
+# (never auto-merges) — additive visibility. Minor/patch grouped to limit PR noise.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # npm monorepo: root + every app + every workspace package (dependabot v2 glob).
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/apps/*"
+      - "/packages/*"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "build"
+      include: "scope"
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+
+  # Container base image (deploy-web).
+  - package-ecosystem: "docker"
+    directory: "/apps/deploy-web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "build"
+      include: "scope"
