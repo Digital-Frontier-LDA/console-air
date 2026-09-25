@@ -40,7 +40,7 @@
     "dompurify": "3.4.2",
     "lodash": "4.18.1",
     "nanoid": "3.3.12",
-    "js-yaml": "4.1.1",
+    "js-yaml": "4.3.2",
     "d3-color": "3.1.0",
     "d3-interpolate": "3.0.1",
     "d3-transition": "3.0.1",
